@@ -13,7 +13,10 @@ class drawObject
 {
 public:
   virtual void draw(QPainter& painter) = 0;
-  enum ShapeType{point, line, area};
+  /*
+   * point means
+  */
+  enum ShapeType{point, line, area, guidance};
   static void setGeoCoordSys(QPainter& painter);
   // recalculate the scale, the geoRect and save the data
   static void registerShape(void* pVoid, ShapeType t);
