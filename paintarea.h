@@ -14,7 +14,6 @@ public:
   explicit PaintArea(QWidget *parent = 0);
   ~PaintArea();
   void registerData(void* pVoid, drawObject::ShapeType type);
-  void registerKmlFile(std::string filePath, drawObject::ShapeType type);
 
 protected:
   void paintEvent(QPaintEvent* event);

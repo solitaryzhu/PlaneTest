@@ -2,7 +2,6 @@
 #include <qdebug.h>
 #include <QPainter>
 #include "myrectf.h"
-#include "mypolygon.h"
 #include <ogrsf_frmts.h>
 #include "kmlfilereader.h"
 
@@ -61,9 +60,8 @@ void drawObject::registerShape(void *pVoid, ShapeType t)
   }
   else if(area == t)
   {
-    QPolygonF* pPolygon = (QPolygonF*)pVoid;
-    QRectF rect = pPolygon->boundingRect();
-    if(!geoRect.contains(rect)){ geoRect = geoRect | rect;}
+    QRectF* pRect = (QRectF*)pVoid;
+    if(!geoRect.contains(*pRect)){ geoRect = geoRect | (*pRect);}
   }
   // recalculate the scale
   double xScale = 400/geoRect.width();
@@ -130,21 +128,22 @@ void drawGeographicalLine::draw(QPainter &painter)
 
 void drawGeographicalPolygon::draw(QPainter &painter)
 {
-  QBrush PlaneBrush(QColor(0, 100, 0));
-  painter.setBrush(PlaneBrush);
-  painter.setPen(Qt::NoPen);
+	QBrush PlaneBrush(QColor(0, 100, 0));
+	painter.setBrush(PlaneBrush);
+	painter.setPen(Qt::NoPen);
 
-  std::list<shapeData*>::iterator it;
-  for (it = listShapeData.begin(); it != listShapeData.end(); ++it)
-  {
-      shapeData* pData = *it;
-      if(0 != pData->pVoid && pData->type == area)
-        {
-          QPolygonF* pPolygon = (QPolygonF*)(pData->pVoid);
-          mypolygon polygon;
-          polygon.setCore(*pPolygon);
-          polygon.optimizeCoord(geoRect.topLeft(), scale);
-          painter.drawPolygon(polygon.getCore());
-        }
-  }
+	std::list<shapeData*>::iterator it;
+	for (it = listShapeData.begin(); it != listShapeData.end(); ++it)
+	{
+		shapeData* pData = *it;
+		if (pData->type == area)
+		{
+			QRectF* pRect = (QRectF*)(pData->pVoid);
+			MyRectF rect;
+			rect.setCore(*pRect);
+			rect.optimizeCoord(geoRect.topLeft(), scale);
+			QRectF tmp = rect.getCore();
+			painter.drawRect(rect.getCore());
+		}
+	}
 }

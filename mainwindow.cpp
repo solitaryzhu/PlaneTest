@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QPainter>
-#include <string>
 #include "paintarea.h"
 
 
@@ -28,13 +27,9 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::on_pushButton_clicked()
 {
-  // test : draw one kml rect
-  std::string testfilepath1 = "E:/GitHub/test_data/test3.kml";
-  std::string testfilepath2 = "E:/GitHub/test_data/test4.kml";
-  pPaintArea->registerKmlFile(testfilepath1, drawObject::area);
-  pPaintArea->registerKmlFile(testfilepath2, drawObject::area);
+  QRectF* pRect = new QRectF(0, 10, 20.0, 10.0);
+  pPaintArea->registerData((void*)(pRect), (drawObject::ShapeType)2);
   pPaintArea->update();
-
 }
 
 void MainWindow::on_pushButton_2_clicked()
