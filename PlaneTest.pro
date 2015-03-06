@@ -19,11 +19,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     myrectf.cpp \
     drawobject.cpp \
-    paintarea.cpp
+    cogrgeometryfilereader.cpp \
+    paintarea.cpp \
+    mypolygon.cpp
 
 HEADERS  += mainwindow.h \
     myrectf.h \
     drawobject.h \
-    paintarea.h
+    cogrgeometryfilereader.h \
+    paintarea.h \
+    mypolygon.h
 
 FORMS    += mainwindow.ui
