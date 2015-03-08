@@ -15,6 +15,7 @@ public:
   ~PaintArea();
   void registerData(void* pVoid, drawObject::ShapeType type);
   void registerKmlFile(std::string filePath, drawObject::ShapeType type);
+  void registerGhtFile(std::string filePath);
 
 protected:
   void paintEvent(QPaintEvent* event);

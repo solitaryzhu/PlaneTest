@@ -39,7 +39,10 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-  QRectF* pRect = new QRectF(42.0, 128.0, 10, 10);
-  pPaintArea->registerData((void*)(pRect), (drawObject::ShapeType)2);
-  pPaintArea->update();
+  //QRectF* pRect = new QRectF(42.0, 128.0, 10, 10);
+  //pPaintArea->registerData((void*)(pRect), (drawObject::ShapeType)2);
+  //pPaintArea->update();
+    std::string testfilepath = "E:/GitHub/test_data/kkk.ght";
+    pPaintArea->registerGhtFile(testfilepath);
+    pPaintArea->update();
 }

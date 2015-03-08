@@ -1,5 +1,7 @@
 #include "paintarea.h"
 #include <QPainter>
+#include <fstream>
+#include <sstream>
 #include <ogr_api.h>
 #include "cogrgeometryfilereader.h"
 
@@ -86,4 +88,71 @@ void PaintArea::registerKmlFile(std::string filePath, drawObject::ShapeType type
     return;
 
   registerData(pData, type);
+}
+
+void PaintArea::registerGhtFile(std::string filePath)
+{
+    if(filePath.empty())
+        return;
+
+    QList<QPointF> lsPoints;
+    std::ifstream infile(filePath);
+    std::istringstream iss;
+    char* cline;
+    std::string head;
+    double dCoordX, dCoordY, dCoordZ;
+    int lineNum, PointNum, type;
+    GuidancePoint* pGP = 0;
+
+    while(infile.getline(cline, 255))
+    {
+        //line.replace(head.find("-"), 1, " ");
+        std::string line(cline);
+        iss.clear();
+        iss.str(line);
+        if(std::string::npos != line.find("AIRPORT"))
+        {
+            iss >> head >> dCoordX >> dCoordY >> type;
+            pGP = new GuidancePoint(GuidancePoint::AirPort, QPointF(dCoordX, dCoordY));
+
+        }
+        else if(std::string::npos != line.find("-"))
+        {
+            iss >> lineNum >> PointNum >> dCoordX >> dCoordY >> dCoordZ >> type;
+            if(std::string::npos != line.find("A1"))
+            {
+                pGP = new GuidancePoint(GuidancePoint::A1Type, QPointF(dCoordX, dCoordY), lineNum);
+
+            }
+            else if(std::string::npos != line.find("A2"))
+            {
+                pGP = new GuidancePoint(GuidancePoint::A2Type,
+                                        QPointF(dCoordX, dCoordY), lineNum);
+
+            }
+            else if(std::string::npos != line.find("B1"))
+            {
+                pGP = new GuidancePoint(GuidancePoint::B1Type,
+                                        QPointF(dCoordX, dCoordY), lineNum);
+            }
+            else if(std::string::npos != line.find("B2"))
+            {
+                pGP = new GuidancePoint(GuidancePoint::B2Type,
+                                        QPointF(dCoordX, dCoordY), lineNum);
+            }
+            else
+            {
+
+                pGP = new GuidancePoint(GuidancePoint::Normal,
+                                        QPointF(dCoordX, dCoordY), lineNum, PointNum);
+            }
+        }
+        else
+            continue;
+
+        lsPoints.push_back(QPointF(dCoordX, dCoordY));
+        drawObject::registerGuidancePoint(pGP);
+    }
+    infile.close();
+
 }

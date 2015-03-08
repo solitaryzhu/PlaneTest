@@ -10,6 +10,7 @@
 QRectF drawObject::geoRect;
 double drawObject::scale = .0;
 std::list<shapeData*> drawObject::listShapeData;
+std::list<GuidancePoint*> drawObject::listGuidancePoints;
 
 void drawObject::registerPoint(QRectF &rect,
                                QPointF point)
@@ -40,7 +41,7 @@ void drawObject::releaseShape()
 	}
 }
 
-void drawObject::registerShape(void *pVoid, ShapeType t)
+void drawObject::registerShape(void *pVoid, ShapeType t, int nNums)
 {
   // recalculate the geoRect
   if(ShapeType::point == t)
@@ -65,12 +66,17 @@ void drawObject::registerShape(void *pVoid, ShapeType t)
     QRectF rect = pPolygon->boundingRect();
     if(!geoRect.contains(rect)){ geoRect = geoRect | rect;}
   }
+  else if(polyline == t)
+  {
+      QPointF* pPoints = (QPointF*)pVoid;
+      for(int i=0; i<nNums; ++i){ registerPoint(geoRect, pPoints[i]);}
+  }
   // recalculate the scale
   double xScale = 400/geoRect.width();
   double yScale = 400/geoRect.height();
   scale = ((xScale<yScale)?xScale:yScale);
   // save the data
-  shapeData* pData = new shapeData(pVoid, t);
+  shapeData* pData = new shapeData(pVoid, t, nNums);
   listShapeData.push_back(pData);
 }
 
@@ -128,6 +134,23 @@ void drawGeographicalLine::draw(QPainter &painter)
 
 }
 
+void drawGeographicalPolyline::draw(QPainter &painter)
+{
+    std::list<shapeData*>::iterator it;
+    for(it = listShapeData.begin(); it != listShapeData.end(); ++it)
+    {
+        shapeData* pData = *it;
+        if(0 != pData->pVoid && pData->type == polyline)
+        {
+            QPointF* pPoints = (QPointF*)(pData->pVoid);
+            mypolylineptr ptr;
+            ptr.setCore(pPoints, pData->nNumofShape);
+            ptr.optimizeCoord(geoRect.topLeft(), scale);
+            painter.drawPolyline(ptr.getCore(), pData->nNumofShape);
+        }
+    }
+}
+
 void drawGeographicalPolygon::draw(QPainter &painter)
 {
   QBrush PlaneBrush(QColor(0, 100, 0));
@@ -147,4 +170,18 @@ void drawGeographicalPolygon::draw(QPainter &painter)
           painter.drawPolygon(polygon.getCore());
         }
   }
+}
+
+void drawObject::registerGuidancePoint(GuidancePoint *pPoint)
+{
+    listGuidancePoints.push_back(pPoint);
+}
+
+void drawObject::releaseGuidancePoint()
+{
+    for(std::list<GuidancePoint*>::iterator it = listGuidancePoints.begin();
+        it != listGuidancePoints.end(); ++it)
+    {
+        delete (*it);
+    }
 }
